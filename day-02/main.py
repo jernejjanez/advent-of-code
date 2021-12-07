@@ -1,4 +1,4 @@
-def unit_to_int(command):
+def string_to_int(command):
     try:
         return int(command)
     except ValueError:
@@ -44,7 +44,7 @@ def part_two(commands):
 
 if __name__ == '__main__':
     with open('input.txt', 'r') as f:
-        planned_course = [tuple(map(unit_to_int, line.split())) for line in f]
+        planned_course = [tuple(map(string_to_int, line.split())) for line in f]
 
 part_one(planned_course)
 print()
