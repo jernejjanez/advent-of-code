@@ -105,9 +105,10 @@ def part_two(_input):
     max_y = 0
     min_y = 0
     min_coordinates = 0
-    max_coordinates = 20
-    target_y = 10
-    # target_y = 2000000
+    # max_coordinates = 20
+    # target_ys = [a for a in range(0, 20+1)]
+    max_coordinates = 4000000
+    target_ys = [a for a in range(0, 4000000+1)]
     for sensor, beacon in _input:
         s_x, s_y = sensor.split("Sensor at ")[1].split(", ")
         b_x, b_y = beacon.split(", ")
@@ -121,40 +122,51 @@ def part_two(_input):
         min_y = min(min_y, s_y, b_y)
         # if min_coordinates <= s_x <= max_coordinates and min_coordinates <= s_y <= max_coordinates:
         sensors.append((s_x, s_y))
-        if min_coordinates <= b_x <= max_coordinates and min_coordinates <= b_y <= max_coordinates:
-            beacons.append((b_x, b_y))
+        # if min_coordinates <= b_x <= max_coordinates and min_coordinates <= b_y <= max_coordinates:
+        beacons.append((b_x, b_y))
 
     result_positions = []
     visited_positions = []
-    temp = set()
+    temp = []
     beacons_on_target_count = 0
     beacons_on_target = []
-    for s, b in zip(sensors, beacons):
-        if b[1] == target_y and b not in beacons_on_target:
-            beacons_on_target_count += 1
-            beacons_on_target.append(b)
-        y_path = abs(s[1] - b[1])
-        x_path = abs(s[0] - b[0])
-        path = x_path + y_path
-        if path >= abs(s[1] - target_y):
-            y_steps = abs(target_y - s[1])
-            x_steps = path - y_steps
-            temp.add((s[0], x_steps))
-            # for step in range(x_steps+1):
-            #     if (s[0] + step, target_y) not in beacons and (s[0] + step, target_y) not in visited_positions:
-            #         visited_positions.append((s[0] + step, target_y))
-            #     if (s[0] - step, target_y) not in beacons and (s[0] - step, target_y) not in visited_positions:
-            #         visited_positions.append((s[0] - step, target_y))
-        # result_positions, visited_positions = breadth_first_search(beacons, result_positions, visited_positions, s, b, 10)
-        # result_positions, visited_positions = breadth_first_search(beacons, result_positions, visited_positions, s, b, 2000000)
+    for target_y, idx in enumerate(target_ys):
+        temp.append([])
+        for s, b in zip(sensors, beacons):
+            if b[1] == target_y and b not in beacons_on_target:
+                beacons_on_target_count += 1
+                beacons_on_target.append(b)
+            y_path = abs(s[1] - b[1])
+            x_path = abs(s[0] - b[0])
+            path = x_path + y_path
+            if path >= abs(s[1] - target_y):
+                y_steps = abs(target_y - s[1])
+                x_steps = path - y_steps
+                temp[idx].append((s[0], x_steps))
 
-    right_position = None
-    left_position = None
-    for pos, steps in temp:
-        if right_position is None or pos + steps > right_position:
-            right_position = pos + steps
-        if left_position is None or pos - steps < left_position:
-            left_position = pos - steps
+    _dict = {}
+    for idx, line in enumerate(temp):
+        possible_beacons = [b for b in range(max_coordinates+1)]
+        right_position = min_coordinates
+        left_position = max_coordinates
+        for pos, steps in line:
+            if len(possible_beacons) == 0:
+                break
+            new_right_position = pos + steps
+            new_left_position = pos - steps
+            for x in range(new_left_position, new_right_position + 1):
+                if x in possible_beacons:
+                    possible_beacons.remove(x)
+            if right_position is None or pos + steps > right_position:
+                right_position = pos + steps
+            if left_position is None or pos - steps < left_position:
+                left_position = pos - steps
+            # if left_position > right_position:
+
+        if len(possible_beacons) != 0:
+            print(possible_beacons)
+            print(idx)
+            print(possible_beacons[0] * 4000000 + 11)
 
     return right_position + abs(left_position) - beacons_on_target_count + 1
 
